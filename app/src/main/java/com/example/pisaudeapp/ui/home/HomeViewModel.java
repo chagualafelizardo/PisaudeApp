@@ -6,14 +6,37 @@ import androidx.lifecycle.ViewModel;
 
 public class HomeViewModel extends ViewModel {
 
-    private final MutableLiveData<String> mText;
+    private MutableLiveData<Integer> patientCount = new MutableLiveData<>(0);
+    private MutableLiveData<Integer> smsSentToday = new MutableLiveData<>(0);
+    private MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
+    private MutableLiveData<String> error = new MutableLiveData<>();
 
-    public HomeViewModel() {
-        mText = new MutableLiveData<>();
-        mText.setValue("This is home fragment");
+    public LiveData<Integer> getPatientCount() {
+        return patientCount;
     }
 
-    public LiveData<String> getText() {
-        return mText;
+    public LiveData<Integer> getSmsSentToday() {
+        return smsSentToday;
+    }
+
+    public LiveData<Boolean> getLoading() {
+        return loading;
+    }
+
+    public LiveData<String> getError() {
+        return error;
+    }
+
+    public void loadDashboardData() {
+        loading.setValue(true);
+
+        // Simular carregamento de dados da API
+        // Na implementação real, você faria chamadas à sua API
+
+        new android.os.Handler().postDelayed(() -> {
+            patientCount.setValue(156); // Exemplo
+            smsSentToday.setValue(23);  // Exemplo
+            loading.setValue(false);
+        }, 1000);
     }
 }

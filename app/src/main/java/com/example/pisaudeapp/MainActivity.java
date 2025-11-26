@@ -1,66 +1,238 @@
 package com.example.pisaudeapp;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
-import android.view.Menu;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.navigation.NavigationView;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
-import com.example.pisaudeapp.databinding.ActivityMainBinding;
+import com.example.pisaudeapp.ApiService;
+import com.example.pisaudeapp.ApiService.Patient;
+import com.example.pisaudeapp.ApiService.ApiCallback;
+import com.example.pisaudeapp.ApiService.SmsCallback;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration mAppBarConfiguration;
-    private ActivityMainBinding binding;
+    private Button btnLoadPatients, btnSendAllSMS;
+    private TextView tvStatus, tvStats;
+    private ProgressBar progressBar;
+    private LinearLayout layoutProgress;
+
+    private ApiService apiService;
+    private List<Patient> patientsList;
+
+    private int smsSent = 0;
+    private int smsFailed = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        // Inicializar views
+        initViews();
 
-        setSupportActionBar(binding.appBarMain.toolbar);
-        binding.appBarMain.fab.setOnClickListener(new View.OnClickListener() {
+        // Inicializar ApiService
+        apiService = new ApiService(this);
+
+        // Solicitar permissões
+        requestPermissions();
+
+        // Configurar botões
+        setupButtons();
+    }
+
+    private void initViews() {
+        btnLoadPatients = findViewById(R.id.btnLoadPatients);
+        btnSendAllSMS = findViewById(R.id.btnSendAllSMS);
+        tvStatus = findViewById(R.id.tvStatus);
+        tvStats = findViewById(R.id.tvStats);
+        progressBar = findViewById(R.id.progressBar);
+        layoutProgress = findViewById(R.id.layoutProgress);
+
+        // Inicialmente desabilitar botão de enviar SMS
+        btnSendAllSMS.setEnabled(false);
+    }
+
+    private void requestPermissions() {
+        String[] permissions = {
+                Manifest.permission.SEND_SMS,
+                Manifest.permission.READ_SMS
+        };
+
+        ActivityCompat.requestPermissions(this, permissions, 100);
+    }
+
+    private void setupButtons() {
+        // Botão para carregar pacientes
+        btnLoadPatients.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .setAnchorView(R.id.fab).show();
+            public void onClick(View v) {
+                loadPatients();
             }
         });
-        DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setOpenableLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+
+        // Botão para enviar todos os SMS
+        btnSendAllSMS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSendAllConfirmation();
+            }
+        });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+    private void loadPatients() {
+        showLoading(true);
+        tvStatus.setText("Carregando pacientes...");
+
+        apiService.getPatients(new ApiCallback() {
+            @Override
+            public void onSuccess(List<Patient> patients) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLoading(false);
+                        patientsList = patients;
+
+                        if (patients.isEmpty()) {
+                            tvStatus.setText("Nenhum paciente encontrado");
+                            btnSendAllSMS.setEnabled(false);
+                        } else {
+                            tvStatus.setText("Encontrados " + patients.size() + " pacientes");
+                            btnSendAllSMS.setEnabled(true);
+                            updateStats();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showLoading(false);
+                        tvStatus.setText("Erro: " + error);
+                        Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+    private void showSendAllConfirmation() {
+        if (patientsList == null || patientsList.isEmpty()) {
+            Toast.makeText(this, "Nenhum paciente para enviar SMS", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new AlertDialog.Builder(this)
+                .setTitle("Enviar SMS para Todos")
+                .setMessage("Deseja enviar SMS para " + patientsList.size() + " pacientes?")
+                .setPositiveButton("Enviar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendAllSMS();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
+    }
+
+    private void sendAllSMS() {
+        if (patientsList == null) return;
+
+        // Resetar contadores
+        smsSent = 0;
+        smsFailed = 0;
+
+        showProgress(true);
+        tvStatus.setText("Enviando SMS...");
+
+        apiService.sendBulkSMS(patientsList, new SmsCallback() {
+            @Override
+            public void onSmsSent(final String phone, final boolean success) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (success) {
+                            smsSent++;
+                        } else {
+                            smsFailed++;
+                        }
+
+                        updateProgress();
+
+                        // Verificar se terminou
+                        if ((smsSent + smsFailed) == patientsList.size()) {
+                            showProgress(false);
+                            tvStatus.setText("Envio concluído!");
+
+                            String result = "Sucesso: " + smsSent + " | Falhas: " + smsFailed;
+                            Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void updateStats() {
+        if (patientsList != null) {
+            int validPatients = 0;
+            for (Patient patient : patientsList) {
+                if (patient.isValid()) {
+                    validPatients++;
+                }
+            }
+
+            String stats = "Total: " + patientsList.size() +
+                    " | Válidos: " + validPatients;
+            tvStats.setText(stats);
+        }
+    }
+
+    private void updateProgress() {
+        int total = patientsList.size();
+        int current = smsSent + smsFailed;
+
+        progressBar.setMax(total);
+        progressBar.setProgress(current);
+
+        String progressText = "Enviando... " + current + "/" + total +
+                " (✓ " + smsSent + " | ✗ " + smsFailed + ")";
+        tvStatus.setText(progressText);
+    }
+
+    private void showLoading(boolean show) {
+        if (show) {
+            progressBar.setVisibility(View.VISIBLE);
+            btnLoadPatients.setEnabled(false);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            btnLoadPatients.setEnabled(true);
+        }
+    }
+
+    private void showProgress(boolean show) {
+        if (show) {
+            layoutProgress.setVisibility(View.VISIBLE);
+            btnLoadPatients.setEnabled(false);
+            btnSendAllSMS.setEnabled(false);
+        } else {
+            layoutProgress.setVisibility(View.GONE);
+            btnLoadPatients.setEnabled(true);
+            btnSendAllSMS.setEnabled(true);
+        }
     }
 }
