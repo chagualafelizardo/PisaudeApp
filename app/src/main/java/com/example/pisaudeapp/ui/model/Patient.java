@@ -5,12 +5,14 @@ public class Patient {
     public String contact;
     public String gender;
     public String textMessageDescription;
+    public String stateDescription; // NOVO CAMPO
 
-    public Patient(String fullname, String contact, String gender, String textMessageDescription) {
+    public Patient(String fullname, String contact, String gender, String textMessageDescription, String stateDescription) {
         this.fullname = fullname;
         this.contact = contact;
         this.gender = gender;
         this.textMessageDescription = textMessageDescription;
+        this.stateDescription = stateDescription;
     }
 
     public boolean isValid() {

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/nav_home"
+        android:title="Home"
+        android:icon="@android:drawable/ic_menu_view"/>
+
+    <item android:id="@+id/nav_faltosos"
+        android:title="Faltosos"
+        android:icon="@android:drawable/ic_menu_info_details"/>
+
+    <item android:id="@+id/nav_abandonos"
+        android:title="Abandonos"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+
+    <item android:id="@+id/nav_levantamento"
+        android:title="Levantamento de ARVs"
+        android:icon="@android:drawable/ic_menu_upload"/>
+
+    <item android:id="@+id/nav_chamadas"
+        android:title="Chamadas"
+        android:icon="@android:drawable/ic_menu_call"/>
+
+    <item android:id="@+id/nav_visitas"
+        android:title="Visitas Domiciliares"
+        android:icon="@android:drawable/ic_menu_myplaces"/>
+</menu>

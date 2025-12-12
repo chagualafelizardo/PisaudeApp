@@ -10,4 +10,11 @@
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
+
+    <string name="app_logo">Logo do aplicativo PISaude</string>
+    <string name="about">Sobre</string>
+    <string name="version">Versão</string>
+    <string name="developer">Desenvolvedor</string>
+    <string name="contact">Contato</string>
+    <string name="copyright">© 2024 PISaude. Todos os direitos reservados.</string>
 </resources>

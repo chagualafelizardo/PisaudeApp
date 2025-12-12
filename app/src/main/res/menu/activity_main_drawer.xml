@@ -3,54 +3,66 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
+    <!-- Header Section -->
     <group android:checkableBehavior="single">
-
-        <!-- Menu Principal -->
         <item
-            android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Início" />
-
-        <item
-            android:id="@+id/nav_patients"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Pacientes" />
-
-        <item
-            android:id="@+id/nav_sms"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Enviar SMS" />
-
-        <item
-            android:id="@+id/nav_messages"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Mensagens" />
-
-        <item
-            android:id="@+id/nav_templates"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Modelos" />
-
+            android:id="@+id/nav_dashboard"
+            android:icon="@drawable/ic_dashboard"
+            android:title="Dashboard" />
     </group>
 
-    <!-- Separador para Configurações -->
-    <item android:title="Configurações">
+    <!-- Grupos Section -->
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_header_grupos"
+            android:title="Grupos"
+            android:enabled="false"
+            android:clickable="false" />
+
+        <item
+            android:id="@+id/nav_marcados_levantamento"
+            android:icon="@drawable/ic_group"
+            android:title="Marcados para Levantamento" />
+
+        <item
+            android:id="@+id/nav_faltosos"
+            android:icon="@drawable/ic_warning"
+            android:title="Faltosos" />
+
+        <item
+            android:id="@+id/nav_chamada"
+            android:icon="@drawable/ic_call"
+            android:title="Chamada" />
+
+        <item
+            android:id="@+id/nav_vistas_domiciliares"
+            android:icon="@drawable/ic_home"
+            android:title="Vistas Domiciliares" />
+
+        <item
+            android:id="@+id/nav_carga_viral"
+            android:icon="@drawable/ic_medical"
+            android:title="Carga Viral" />
+    </group>
+
+    <!-- Divider -->
+    <item android:title="">
         <menu>
-            <item
-                android:id="@+id/nav_settings"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Configurações" />
-
-            <item
-                android:id="@+id/nav_help"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Ajuda" />
-
-            <item
-                android:id="@+id/nav_about"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="Sobre" />
+            <item android:title=""/>
         </menu>
     </item>
+
+    <!-- Configurações Section -->
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Configurações" />
+
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout"
+            android:title="Sair" />
+    </group>
 
 </menu>
