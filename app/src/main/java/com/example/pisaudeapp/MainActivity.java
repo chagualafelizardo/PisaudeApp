@@ -948,94 +948,66 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // CORREÇÃO: Criar cópias finais das variáveis
         final ApiService.Patient currentPatient = patients.get(index);
-        final String phoneNumber = currentPatient.contact != null ?
-                currentPatient.contact.trim().replace("+", "").replace(" ", "") : "";
 
-        if (phoneNumber.isEmpty()) {
-            Log.w(TAG, "📭 [Ciclo #" + cycleNumber + "] Paciente sem telefone: " + currentPatient.fullname);
-            addUiLog("📭 Paciente sem telefone: " + currentPatient.fullname);
+        Log.d(TAG, "📲 [Ciclo #" + cycleNumber + "] " + (index + 1) + "/" + totalPatients +
+                ": " + currentPatient.fullname);
+        addUiLog("📲 Processando: " + currentPatient.fullname);
 
-            // Processar próximo paciente imediatamente
-            sendSmsSequentially(patients, cycleNumber, index + 1, sent, failed, totalPatients);
-            return;
-        }
+        // ✅ USAR ApiService PARA ENVIAR SMS E ATUALIZAR STATUS NO SERVIDOR
+        apiService.sendSMS(currentPatient, new ApiService.SmsCallback() {
+            @Override
+            public void onSmsSent(String phone, boolean success, int patientId, String message) {
+                // Atualizar contadores
+                if (success) {
+                    sent[0]++;
+                    Log.d(TAG, "✅ [Ciclo #" + cycleNumber + "] SMS enviado e status atualizado para paciente ID: " + patientId);
+                    addUiLog("✅ SMS enviado para: " + currentPatient.fullname);
+                } else {
+                    failed[0]++;
+                    Log.w(TAG, "❌ [Ciclo #" + cycleNumber + "] Falha ao enviar SMS para paciente ID: " + patientId);
+                    addUiLog("❌ Falha SMS para: " + currentPatient.fullname);
+                }
 
-        // Verificar se o número é válido (mínimo 9 dígitos)
-        if (phoneNumber.length() < 9) {
-            Log.w(TAG, "❌ [Ciclo #" + cycleNumber + "] Número inválido: " + phoneNumber);
-            addUiLog("❌ Número inválido: " + currentPatient.fullname);
-            failed[0]++;
+                // Atualizar UI
+                runOnUiThread(() -> {
+                    updateProgress(sent[0], failed[0], totalPatients);
+                });
 
-            // CORREÇÃO: Usar variáveis finais
-            final String patientName = currentPatient.fullname != null ? currentPatient.fullname : "Paciente";
+                // Enviar broadcast para atualizar UI
+                Intent smsIntent = new Intent("SMS_SENT");
+                smsIntent.putExtra("PHONE", phone);
+                smsIntent.putExtra("PATIENT_NAME", currentPatient.fullname);
+                smsIntent.putExtra("SUCCESS", success);
+                smsIntent.putExtra("PATIENT_ID", patientId);
+                sendBroadcast(smsIntent);
 
-            // Enviar broadcast para atualizar UI
-            Intent smsIntent = new Intent("SMS_SENT");
-            smsIntent.putExtra("PHONE", phoneNumber);
-            smsIntent.putExtra("PATIENT_NAME", patientName);
-            smsIntent.putExtra("SUCCESS", false);
-            sendBroadcast(smsIntent);
+                // Enviar broadcast com progresso
+                Intent progressIntent = new Intent("SMS_PROGRESS");
+                progressIntent.putExtra("CURRENT", index + 1);
+                progressIntent.putExtra("TOTAL", totalPatients);
+                progressIntent.putExtra("SENT", sent[0]);
+                progressIntent.putExtra("FAILED", failed[0]);
+                sendBroadcast(progressIntent);
 
-            // Processar próximo paciente após breve pausa
-            handler.postDelayed(() -> {
-                sendSmsSequentially(patients, cycleNumber, index + 1, sent, failed, totalPatients);
-            }, 500);
-            return;
-        }
+                // Se for o último paciente, finalizar
+                if (index + 1 >= totalPatients) {
+                    Log.d(TAG, "🎯 [Ciclo #" + cycleNumber + "] Último paciente processado");
+                    finalizeCycle(cycleNumber, sent[0], failed[0], true);
+                } else {
+                    // Próximo paciente após 2 segundos
+                    handler.postDelayed(() -> {
+                        sendSmsSequentially(patients, cycleNumber, index + 1, sent, failed, totalPatients);
+                    }, 2000);
+                }
+            }
 
-        Log.d(TAG, "📲 [Ciclo #" + cycleNumber + "] " + (index + 1) + "/" + totalPatients + ": " + currentPatient.fullname);
-        addUiLog("📲 Enviando para: " + currentPatient.fullname + " (" + phoneNumber + ")");
-
-        // Gerar mensagem personalizada
-        final String message = generateSmsMessage(currentPatient);
-
-        // CORREÇÃO: Criar cópias finais para uso no thread
-        final String finalPatientName = currentPatient.fullname != null ? currentPatient.fullname : "Paciente";
-
-        try {
-            // Enviar SMS usando SmsManager
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-
-            Log.d(TAG, "✅ SMS enviado para: " + phoneNumber);
-            sent[0]++;
-
-            // Enviar broadcast para atualizar UI
-            Intent smsIntent = new Intent("SMS_SENT");
-            smsIntent.putExtra("PHONE", phoneNumber);
-            smsIntent.putExtra("PATIENT_NAME", finalPatientName);
-            smsIntent.putExtra("SUCCESS", true);
-            sendBroadcast(smsIntent);
-
-        } catch (Exception e) {
-            Log.e(TAG, "❌ Falha ao enviar SMS para: " + phoneNumber, e);
-            failed[0]++;
-
-            Intent smsIntent = new Intent("SMS_SENT");
-            smsIntent.putExtra("PHONE", phoneNumber);
-            smsIntent.putExtra("PATIENT_NAME", finalPatientName);
-            smsIntent.putExtra("SUCCESS", false);
-            sendBroadcast(smsIntent);
-        }
-
-        // Atualizar progresso na UI
-        runOnUiThread(() -> {
-            updateProgress(sent[0], failed[0], totalPatients);
+            @Override
+            public void onSmsProgress(String phone, String message, int patientId, int progress, int total) {
+                // Log de progresso se necessário
+                Log.d(TAG, "📊 [Ciclo #" + cycleNumber + "] Progresso: " + progress + "/" + total);
+            }
         });
-
-        // Enviar broadcast com progresso
-        Intent progressIntent = new Intent("SMS_PROGRESS");
-        progressIntent.putExtra("CURRENT", index + 1);
-        progressIntent.putExtra("TOTAL", totalPatients);
-        progressIntent.putExtra("SENT", sent[0]);
-        progressIntent.putExtra("FAILED", failed[0]);
-        sendBroadcast(progressIntent);
-
-        // Chamar recursivamente para o próximo paciente após 2 segundos
-        handler.postDelayed(() -> {
-            sendSmsSequentially(patients, cycleNumber, index + 1, sent, failed, totalPatients);
-        }, 2000);
     }
 
     private String generateSmsMessage(ApiService.Patient patient) {

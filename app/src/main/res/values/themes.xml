@@ -22,4 +22,13 @@
     <style name="Theme.PisaudeApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.PisaudeApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <!-- Tema para Activity de Logs -->
+    <style name="Theme.LogsActivity" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorSecondary">@color/border_dark</item>
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>

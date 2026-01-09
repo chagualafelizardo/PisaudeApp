@@ -38,7 +38,7 @@
         android:id="@+id/tv_app_version"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Versão 1.0"
+        android:text="Versão 1.2.0"
         android:textSize="14sp"
         android:textColor="?android:attr/textColorSecondary"
         app:layout_constraintTop_toBottomOf="@id/tv_app_name"
@@ -172,7 +172,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Contato: 851655626"
+                android:text="Contato:"
                 android:textStyle="bold"
                 android:textSize="16sp"
                 android:textColor="?android:attr/textColorPrimary"
@@ -195,7 +195,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="suporte@pisaude.com"
+                    android:text="felizardo.chaguala@jhpiego.org"
                     android:textSize="14sp"
                     android:textColor="@android:color/holo_blue_dark"
                     android:clickable="true"
@@ -218,7 +218,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="(11) 99999-9999"
+                    android:text="(+258) 851655626"
                     android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>

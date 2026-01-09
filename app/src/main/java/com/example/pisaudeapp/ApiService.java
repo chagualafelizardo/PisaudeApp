@@ -34,9 +34,9 @@ public class ApiService {
     private SmsManager smsManager;
 
     // URL base da API
-    private static final String BASE_URL = "http://10.101.10.178:5000";
+    private static final String BASE_URL = "http://192.168.123.227:5000";
 
-    // Interface para callback
+    // Interface para callback 192.168.249.227
     public interface ApiCallback {
         void onSuccess(List<Patient> patients);
         void onError(String error);

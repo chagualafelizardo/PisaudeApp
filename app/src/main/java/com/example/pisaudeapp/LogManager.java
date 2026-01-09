@@ -1,17 +1,22 @@
 package com.example.pisaudeapp;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class LogManager {
     private static LogManager instance;
     private final List<String> logs = new ArrayList<>();
-    private final List<LogUpdateListener> listeners = new ArrayList<>();
+    private final List<LogUpdateListener> listeners = new CopyOnWriteArrayList<>();
     private static final int MAX_LOGS = 1000;
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
     public interface LogUpdateListener {
         void onLogsUpdated(String newLog);
@@ -27,20 +32,29 @@ public class LogManager {
         return instance;
     }
 
-    public synchronized void addLog(String message) {
+    public void addLog(String message) {
         String time = timeFormat.format(new Date());
         String logEntry = "[" + time + "] " + message;
 
-        logs.add(0, logEntry); // Adiciona no início para mostrar os mais recentes primeiro
+        synchronized (this) {
+            logs.add(0, logEntry); // Adiciona no início para mostrar os mais recentes primeiro
 
-        // Limitar o número máximo de logs
-        if (logs.size() > MAX_LOGS) {
-            logs.remove(logs.size() - 1);
+            // Limitar o número máximo de logs
+            if (logs.size() > MAX_LOGS) {
+                logs.remove(logs.size() - 1);
+            }
         }
 
-        // Notificar todos os listeners
+        // Notificar todos os listeners na thread principal
         for (LogUpdateListener listener : listeners) {
-            listener.onLogsUpdated(logEntry);
+            mainHandler.post(() -> {
+                try {
+                    listener.onLogsUpdated(logEntry);
+                } catch (Exception e) {
+                    // Remover listener problemático
+                    listeners.remove(listener);
+                }
+            });
         }
     }
 
@@ -49,6 +63,10 @@ public class LogManager {
     }
 
     public synchronized String getAllLogsAsString() {
+        if (logs.isEmpty()) {
+            return "";
+        }
+
         StringBuilder sb = new StringBuilder();
         for (String log : logs) {
             sb.append(log).append("\n");
@@ -56,20 +74,73 @@ public class LogManager {
         return sb.toString();
     }
 
-    public synchronized void clearLogs() {
-        logs.clear();
+    public void clearLogs() {
+        synchronized (this) {
+            logs.clear();
+        }
+
         for (LogUpdateListener listener : listeners) {
-            listener.onLogsCleared();
+            mainHandler.post(() -> {
+                try {
+                    listener.onLogsCleared();
+                } catch (Exception e) {
+                    listeners.remove(listener);
+                }
+            });
         }
     }
 
-    public synchronized void registerListener(LogUpdateListener listener) {
+    public void registerListener(LogUpdateListener listener) {
         if (!listeners.contains(listener)) {
             listeners.add(listener);
         }
     }
 
-    public synchronized void unregisterListener(LogUpdateListener listener) {
+    public void unregisterListener(LogUpdateListener listener) {
         listeners.remove(listener);
+    }
+
+    // Métodos utilitários para diferentes tipos de logs
+    public void addInfoLog(String message) {
+        addLog("ℹ️ " + message);
+    }
+
+    public void addSuccessLog(String message) {
+        addLog("✅ " + message);
+    }
+
+    public void addErrorLog(String message) {
+        addLog("❌ " + message);
+    }
+
+    public void addWarningLog(String message) {
+        addLog("⚠️ " + message);
+    }
+
+    public void addDebugLog(String message) {
+        addLog("🐛 " + message);
+    }
+
+    public void addNetworkLog(String message) {
+        addLog("📡 " + message);
+    }
+
+    public void addSmsLog(String message) {
+        addLog("📱 " + message);
+    }
+
+    public int getLogCount() {
+        synchronized (this) {
+            return logs.size();
+        }
+    }
+
+    public String getLastLog() {
+        synchronized (this) {
+            if (!logs.isEmpty()) {
+                return logs.get(0);
+            }
+            return null;
+        }
     }
 }

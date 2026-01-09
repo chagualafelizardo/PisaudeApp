@@ -16,45 +16,59 @@
         app:navigationIcon="@drawable/ic_arrow_back_white"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <!-- Container para os botões com ícones -->
     <LinearLayout
         android:id="@+id/buttons_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:padding="16dp"
         android:background="@color/card_background"
-        android:elevation="2dp"
+        android:elevation="4dp"
+        android:gravity="center"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <!-- Botão Atualizar com ToolTip -->
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_refresh"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            android:text="Atualizar"
-            android:backgroundTint="@color/info" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            app:srcCompat="@drawable/ic_refresh"
+            app:tint="@color/info"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Atualizar logs"
+            android:tooltipText="Atualizar"
+            app:tooltipText="Atualizar logs" />
 
-        <Button
+        <!-- Botão Copiar com ToolTip -->
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_copy"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="4dp"
-            android:text="Copiar"
-            android:backgroundTint="@color/primary" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="16dp"
+            app:srcCompat="@drawable/ic_content_copy"
+            app:tint="@android:color/white"
+            android:backgroundTint="@color/primary"
+            android:background="?attr/selectableItemBackground"
+            android:contentDescription="Copiar logs"
+            android:tooltipText="Copiar"
+            app:tooltipText="Copiar todos os logs" />
 
-        <Button
+        <!-- Botão Limpar com ToolTip -->
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/btn_clear"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:text="Limpar"
-            android:backgroundTint="@color/error" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="16dp"
+            app:srcCompat="@drawable/ic_delete"
+            app:tint="@color/error"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Limpar logs"
+            android:tooltipText="Limpar"
+            app:tooltipText="Limpar todos os logs" />
 
     </LinearLayout>
 
