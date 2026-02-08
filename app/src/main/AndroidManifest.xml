@@ -66,6 +66,14 @@
                 android:value=".MainActivity" />
         </activity>
 
+        <activity android:name=".AppointmentsActivity" />
+
+        <!-- Instructions Activity (NOVO) -->
+        <activity
+            android:name=".InstructionsActivity"
+            android:exported="false"
+            android:label="Instruções SMS"/>
+
         <!-- Serviço -->
         <service
             android:name=".AutoService"
@@ -80,6 +88,18 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Receiver de SMS -->
+        <receiver
+            android:name=".SMSReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+                <action android:name="android.provider.Telephony.SMS_DELIVER" />
             </intent-filter>
         </receiver>
     </application>

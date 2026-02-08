@@ -12,6 +12,18 @@
             android:id="@+id/nav_patients"
             android:icon="@drawable/ic_group"
             android:title="Pacientes"/>
+
+        <item
+            android:id="@+id/nav_appointments"
+            android:icon="@drawable/ic_calendar_today_black_24dp"
+            android:title="Agendamentos" />
+    </group>
+
+    <group android:id="@+id/nav_instruction">
+        <item
+            android:id="@+id/nav_instructions"
+            android:icon="@android:drawable/ic_menu_help"
+            android:title="Instruções SMS" />
     </group>
 
     <group android:id="@+id/group_settings">

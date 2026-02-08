@@ -44,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "PISaudeApp";
     private static final int PERMISSION_REQUEST_CODE = 100;
-
+    // Constantes
+    private static final int SMS_RECEIVE_PERMISSION_CODE = 200;
     // ===== MENU LATERAL =====
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -147,6 +148,8 @@ public class MainActivity extends AppCompatActivity {
         // ========= VERIFICA STATUS DO SERVIÇO =========
         checkAutoServiceStatus();
 
+        checkAndRequestSmsPermissions();
+
         Log.d(TAG, "onCreate concluído");
     }
 
@@ -208,6 +211,23 @@ public class MainActivity extends AppCompatActivity {
         // Mostrar seção de logs
         if (layoutLogs != null) {
             layoutLogs.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void checkAndRequestSmsPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
+                    != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{
+                                Manifest.permission.RECEIVE_SMS,
+                                Manifest.permission.READ_SMS
+                        },
+                        SMS_RECEIVE_PERMISSION_CODE);
+            }
         }
     }
 
@@ -327,6 +347,17 @@ public class MainActivity extends AppCompatActivity {
                         // Já estamos na dashboard, apenas fecha o drawer
                         return true;
                     }
+                    else if (id == R.id.nav_appointments) {
+                        Intent appointmentsIntent = new Intent(MainActivity.this, AppointmentsActivity.class);
+                        startActivity(appointmentsIntent);
+                        return true;
+                    }
+                    else if (id == R.id.nav_instructions) {
+                        Intent instructionsIntent = new Intent(MainActivity.this, InstructionsActivity.class);
+                        startActivity(instructionsIntent);
+                        return true;
+                    }
+
                     if (id == R.id.nav_patients) {
                         // Abrir tela de pacientes
                         Intent patientsIntent = new Intent(MainActivity.this, PatientsActivity.class);
