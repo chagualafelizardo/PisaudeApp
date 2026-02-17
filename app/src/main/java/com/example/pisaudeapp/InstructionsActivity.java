@@ -15,7 +15,7 @@ public class InstructionsActivity extends AppCompatActivity {
 
         String instructions = "📱 COMO AGENDAR CONSULTA VIA SMS:\n\n" +
                 "1️⃣ Envie uma mensagem SMS para:\n" +
-                "   📞 +258 85 165 5626\n\n" +
+                "   📞 +258 84 332 0898\n\n" +
                 "2️⃣ Se você tem NID (Número de Identificação):\n" +
                 "   📝 consulta NID DD/MM/AAAA HH:MM\n" +
                 "   ✅ Exemplo: consulta 0110000001/2015/00396 25/12/2024 14:30\n\n" +

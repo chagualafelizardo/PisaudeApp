@@ -16,7 +16,7 @@ import java.util.Locale;
 
 public class SMSReceiver extends BroadcastReceiver {
     private static final String TAG = "SMSReceiver";
-    private static final String SERVER_PHONE_NUMBER = "+258851655626"; // Número do servidor
+    private static final String SERVER_PHONE_NUMBER = "+258843320898"; // Número do servidor
 
     @Override
     public void onReceive(Context context, Intent intent) {
